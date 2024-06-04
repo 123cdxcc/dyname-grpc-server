@@ -3,6 +3,8 @@ package main
 import (
 	"dyname-grpc-server/api"
 	"dyname-grpc-server/service"
+	"flag"
+	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log/slog"
@@ -10,20 +12,34 @@ import (
 	"os"
 )
 
+var address string
+var _defaultAddress = "dynamic-grpc.socket"
+
+func init() {
+	flag.StringVar(&address, "address", _defaultAddress, "监听地址")
+	flag.Parse()
+}
+
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
-	{
-		err := os.Remove("./dynamic-grpc.socket")
-		if err != nil && !os.IsNotExist(err) {
-			panic(err)
+	var listener net.Listener
+	var err error
+	if address == _defaultAddress {
+		{
+			err := os.Remove(_defaultAddress)
+			if err != nil && !os.IsNotExist(err) {
+				panic(err)
+			}
 		}
+		listener, err = net.Listen("unix", _defaultAddress)
+	} else {
+		listener, err = net.Listen("tcp", address)
 	}
-	listener, err := net.Listen("unix", "dynamic-grpc.socket")
 	if err != nil {
 		panic(err)
 	}
-	slog.Info("server listening dynamic-grpc.socket")
+	slog.Info(fmt.Sprintf("server listening %s", address))
 	server := grpc.NewServer()
 	api.RegisterGrpcHelperServer(server, service.NewGrpcHelperService())
 	reflection.Register(server)

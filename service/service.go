@@ -17,19 +17,24 @@ func NewGrpcHelperService() *GrpcHelperService {
 	}
 }
 
-func (service *GrpcHelperService) ListService(ctx context.Context, req *api.ListServiceRequest) (*api.ListServiceReply, error) {
-	helper, ok := service.helperMap[req.Address]
+func (service *GrpcHelperService) getHelper(ctx context.Context, address string) (*grpcutil.DynamicGrpcHelper, error) {
+	helper, ok := service.helperMap[address]
 	if !ok {
-		h, err := grpcutil.NewGrpcHelper(req.Address)
+		_, err := service.RefreshService(ctx, &api.RefreshServiceRequest{
+			Address: address,
+		})
 		if err != nil {
-			return nil, grpcutil.ErrorInternalError()
+			return nil, grpcutil.ErrorInternalError(err)
 		}
-		service.helperMap[req.Address] = h
-		helper = h
-		err = helper.RefreshService(ctx)
-		if err != nil {
-			return nil, grpcutil.ErrorInternalError()
-		}
+		helper = service.helperMap[address]
+	}
+	return helper, nil
+}
+
+func (service *GrpcHelperService) ListService(ctx context.Context, req *api.ListServiceRequest) (*api.ListServiceReply, error) {
+	helper, err := service.getHelper(ctx, req.Address)
+	if err != nil {
+		return nil, err
 	}
 	services := helper.ListService(ctx)
 	respServices := make([]*api.ListServiceReply_ServiceItem, 0, len(services))
@@ -45,5 +50,33 @@ func (service *GrpcHelperService) ListService(ctx context.Context, req *api.List
 	}
 	return &api.ListServiceReply{
 		Data: respServices,
+	}, nil
+}
+
+func (service *GrpcHelperService) RefreshService(ctx context.Context, req *api.RefreshServiceRequest) (*api.RefreshServiceReply, error) {
+	h, err := grpcutil.NewGrpcHelper(req.Address)
+	if err != nil {
+		return nil, grpcutil.ErrorInternalError(err)
+	}
+	err = h.RefreshService(ctx)
+	if err != nil {
+		return nil, grpcutil.ErrorInternalError(err)
+	}
+	service.helperMap[req.Address] = h
+	return nil, nil
+}
+
+func (service *GrpcHelperService) Invoke(ctx context.Context, req *api.InvokeRequest) (*api.InvokeReply, error) {
+	helper, err := service.getHelper(ctx, req.Address)
+	if err != nil {
+		return nil, err
+	}
+	var output []byte
+	err = helper.Invoke(ctx, req.Service, req.Method, []byte(req.JsonParams), &output)
+	if err != nil {
+		return nil, grpcutil.ErrorInternalError(err)
+	}
+	return &api.InvokeReply{
+		JsonResponse: string(output),
 	}, nil
 }
