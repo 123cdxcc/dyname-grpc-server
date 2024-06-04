@@ -1,0 +1,21 @@
+syntax = "proto3";
+//包名
+package api;
+//go 包
+option go_package = "./api";
+
+service GrpcHelper {
+  rpc ListService(ListServiceRequest) returns (ListServiceReply);
+}
+
+message ListServiceRequest {
+  string address = 1;
+}
+message ListServiceReply {
+  repeated ServiceItem data = 1;
+
+  message ServiceItem {
+    string service_name = 1;
+    repeated string method_name = 2;
+  }
+}
