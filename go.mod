@@ -13,6 +13,7 @@ require (
 	github.com/bufbuild/protocompile v0.10.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
+	github.com/liushuochen/gotable v0.0.0-20221119160816-1113793e7092 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect

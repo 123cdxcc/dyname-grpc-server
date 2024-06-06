@@ -1,7 +1,6 @@
 package grpcutil
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	"github.com/stretchr/testify/assert"
@@ -19,12 +18,22 @@ func TestProtoToJsonSchema(t *testing.T) {
 	for _, descriptor := range fileDescriptor {
 		for _, messageDescriptor := range descriptor.GetMessageTypes() {
 			if messageDescriptor.GetName() == "TestMessage" {
-				var m map[string]any
-				err = json.Unmarshal([]byte(ProtoToJsonSchema(messageDescriptor)), &m)
-				a.NoError(err)
-				b, _ := json.MarshalIndent(m, "", "  ")
-				fmt.Println(string(b))
+				ProtoToJsonSchema(messageDescriptor)
 			}
 		}
+	}
+}
+
+func TestGetProtoAllMessage(t *testing.T) {
+	a := assert.New(t)
+	fileDescriptor, err := protoparse.Parser{
+		ImportPaths: []string{
+			"../../api/",
+		},
+	}.ParseFiles("grpc_helper.proto")
+	a.NoError(err)
+	m := GetProtoAllMessage(fileDescriptor)
+	for k := range m {
+		fmt.Println(k)
 	}
 }

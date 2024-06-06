@@ -50,13 +50,19 @@ message TestMessage {
   int64 int64_field = 5;
   bool bool_field = 6;
   string string_field = 7;
+  repeated string repeated_string_field = 12;
   bytes bytes_field = 8;
   repeated TestMessage repeated_field = 9;
   map<string, TestMessage> map_field = 10;
+  map<string, string> map_string_field = 13;
   enum Enum {
     ZERO = 0;
     ONE = 1;
     TWO = 2;
   }
   Enum enum_field = 11;
+  Nested nested = 14;
+  message Nested {
+    string nested_field = 1;
+  }
 }
