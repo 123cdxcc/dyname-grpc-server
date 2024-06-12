@@ -10,6 +10,7 @@ service GrpcHelper {
   // 执行
   rpc Invoke(InvokeRequest) returns (InvokeReply);
   rpc RefreshService(RefreshServiceRequest) returns (RefreshServiceReply);
+  rpc Test(TestMessage) returns (TestMessage);
 }
 
 message RefreshServiceRequest {
@@ -55,12 +56,12 @@ message TestMessage {
   repeated TestMessage repeated_field = 9;
   map<string, TestMessage> map_field = 10;
   map<string, string> map_string_field = 13;
-  enum Enum {
+  enum DynamicEnum {
     ZERO = 0;
     ONE = 1;
     TWO = 2;
   }
-  Enum enum_field = 11;
+  DynamicEnum enum_field = 11;
   Nested nested = 14;
   message Nested {
     string nested_field = 1;

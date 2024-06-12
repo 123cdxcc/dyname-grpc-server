@@ -1,0 +1,23 @@
+syntax = "proto3";
+//包名
+package api;
+
+message Test1 {
+  int32 age = 1;
+  Gender gender = 2;
+  enum Gender {
+    MALE = 0;
+    FEMALE = 1;
+  }
+  Test1 test_test1 = 3;
+}
+
+message Test {
+  string name = 1;
+  Test1 test_test1 = 2;
+  repeated Test1 test_repeated_test1 = 3;
+  repeated int32 test_repeated_int32 = 4;
+  message Test2 {
+    int32 age2 = 1;
+  }
+}

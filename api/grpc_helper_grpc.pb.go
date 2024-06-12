@@ -24,6 +24,7 @@ const (
 	GrpcHelper_ListService_FullMethodName    = "/api.GrpcHelper/ListService"
 	GrpcHelper_Invoke_FullMethodName         = "/api.GrpcHelper/Invoke"
 	GrpcHelper_RefreshService_FullMethodName = "/api.GrpcHelper/RefreshService"
+	GrpcHelper_Test_FullMethodName           = "/api.GrpcHelper/Test"
 )
 
 // GrpcHelperClient is the client API for GrpcHelper service.
@@ -35,6 +36,7 @@ type GrpcHelperClient interface {
 	// 执行
 	Invoke(ctx context.Context, in *InvokeRequest, opts ...grpc.CallOption) (*InvokeReply, error)
 	RefreshService(ctx context.Context, in *RefreshServiceRequest, opts ...grpc.CallOption) (*RefreshServiceReply, error)
+	Test(ctx context.Context, in *TestMessage, opts ...grpc.CallOption) (*TestMessage, error)
 }
 
 type grpcHelperClient struct {
@@ -72,6 +74,15 @@ func (c *grpcHelperClient) RefreshService(ctx context.Context, in *RefreshServic
 	return out, nil
 }
 
+func (c *grpcHelperClient) Test(ctx context.Context, in *TestMessage, opts ...grpc.CallOption) (*TestMessage, error) {
+	out := new(TestMessage)
+	err := c.cc.Invoke(ctx, GrpcHelper_Test_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GrpcHelperServer is the server API for GrpcHelper service.
 // All implementations must embed UnimplementedGrpcHelperServer
 // for forward compatibility
@@ -81,6 +92,7 @@ type GrpcHelperServer interface {
 	// 执行
 	Invoke(context.Context, *InvokeRequest) (*InvokeReply, error)
 	RefreshService(context.Context, *RefreshServiceRequest) (*RefreshServiceReply, error)
+	Test(context.Context, *TestMessage) (*TestMessage, error)
 	mustEmbedUnimplementedGrpcHelperServer()
 }
 
@@ -96,6 +108,9 @@ func (UnimplementedGrpcHelperServer) Invoke(context.Context, *InvokeRequest) (*I
 }
 func (UnimplementedGrpcHelperServer) RefreshService(context.Context, *RefreshServiceRequest) (*RefreshServiceReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshService not implemented")
+}
+func (UnimplementedGrpcHelperServer) Test(context.Context, *TestMessage) (*TestMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Test not implemented")
 }
 func (UnimplementedGrpcHelperServer) mustEmbedUnimplementedGrpcHelperServer() {}
 
@@ -164,6 +179,24 @@ func _GrpcHelper_RefreshService_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GrpcHelper_Test_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TestMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrpcHelperServer).Test(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrpcHelper_Test_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrpcHelperServer).Test(ctx, req.(*TestMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GrpcHelper_ServiceDesc is the grpc.ServiceDesc for GrpcHelper service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -182,6 +215,10 @@ var GrpcHelper_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshService",
 			Handler:    _GrpcHelper_RefreshService_Handler,
+		},
+		{
+			MethodName: "Test",
+			Handler:    _GrpcHelper_Test_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
