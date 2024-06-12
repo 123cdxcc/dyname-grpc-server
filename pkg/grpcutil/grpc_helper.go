@@ -36,6 +36,11 @@ func NewGrpcHelper(address string) (*DynamicGrpcHelper, error) {
 	}, nil
 }
 
+func (gh *DynamicGrpcHelper) Close() {
+	gh.client.Reset()
+	_ = gh.conn.Close()
+}
+
 func (gh *DynamicGrpcHelper) RefreshService(_ context.Context) error {
 	services, err := gh.client.ListServices()
 	if err != nil {

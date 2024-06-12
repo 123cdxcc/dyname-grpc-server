@@ -62,6 +62,9 @@ func (service *GrpcHelperService) RefreshService(ctx context.Context, req *api.R
 	if err != nil {
 		return nil, grpcutil.ErrorInternalError(err)
 	}
+	if h, ok := service.helperMap[req.Address]; ok {
+		h.Close()
+	}
 	service.helperMap[req.Address] = h
 	return nil, nil
 }
